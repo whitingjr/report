@@ -7,12 +7,12 @@ import org.aesh.command.CommandResult;
 import org.aesh.command.impl.parser.CommandLineParser;
 import org.aesh.command.invocation.CommandInvocation;
 import org.aesh.command.option.Option;
-import perf.parse.factory.CsvFactory;
-import perf.parse.file.FileRule;
-import perf.parse.file.RuleBuilder;
-import perf.yaup.AsciiArt;
-import perf.yaup.file.FileUtility;
-import perf.yaup.json.Json;
+import io.hyperfoil.tools.parse.factory.CsvFactory;
+import io.hyperfoil.tools.parse.file.FileRule;
+import io.hyperfoil.tools.parse.file.RuleBuilder;
+import io.hyperfoil.tools.yaup.AsciiArt;
+import io.hyperfoil.tools.yaup.file.FileUtility;
+import io.hyperfoil.tools.yaup.json.Json;
 
 import java.io.*;
 import java.nio.file.Files;

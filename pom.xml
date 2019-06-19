@@ -93,12 +93,12 @@
             <version>2.3</version>
         </dependency>
         <dependency>
-            <groupId>perf</groupId>
+            <groupId>io.hyperfoil.tools</groupId>
             <artifactId>yaup</artifactId>
             <version>0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>perf</groupId>
+            <groupId>io.hyperfoil.tools</groupId>
             <artifactId>parse</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
