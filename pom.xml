@@ -66,6 +66,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>--cwd src/main/node run build</arguments>
+                            <workingDirectory>src/main/node</workingDirectory>
                         </configuration>
                     </execution>
                 </executions>
