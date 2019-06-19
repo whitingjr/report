@@ -26,6 +26,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>copy-index-template</id>
@@ -35,7 +36,7 @@
                         </goals>
                         <configuration>
                             <target name="copy and rename index.template.html">
-                                <copy file="src/main/node/public/index.template.html" tofile="src/main/node/public/index.html"/>
+                                <copy file="${project.basedir}/src/main/node/public/index.template.html" tofile="${project.basedir}/src/main/node/public/index.html"/>
                             </target>
                         </configuration>
                     </execution>
