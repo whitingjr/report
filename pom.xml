@@ -55,9 +55,18 @@
                             <goal>install-node-and-yarn</goal>
                         </goals>
                         <!-- optional: default phase is "generate-resources" -->
-                        <phase>generate-resources</phase>
+                        <phase>initialize</phase>
                     </execution>
-                    <!--  removed because we are blocking the start of quarkus with this exec -->
+                    <execution>
+                        <id>yarn install</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <workingDirectory>src/main/node</workingDirectory>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>yarn build</id>
                         <goals>
