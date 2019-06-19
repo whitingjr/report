@@ -82,7 +82,7 @@
                 <configuration>
                     <nodeVersion>v10.15.3</nodeVersion>
                     <yarnVersion>v1.15.2</yarnVersion>
-                    <installDirectory>src/main/node/node_modules</installDirectory>
+                    <installDirectory>target</installDirectory>
                 </configuration>
             </plugin>
             <plugin>
