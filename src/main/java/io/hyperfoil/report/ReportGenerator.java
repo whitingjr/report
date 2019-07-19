@@ -28,9 +28,11 @@ public class ReportGenerator implements Command {
 
    public static final String DEFAULT_TOKEN = "[/**DATAKEY**/]";
 
+   public static final String PHASE = "(?<phase>[^";
+
    public static List<FileRule> rules(){
-      String phaseIterFork = "phase.${{phase}}.iteration.${{iteration:all}}.fork.${{fork}}";
-      String phaseIterForkMetric = "phase.${{phase}}.iteration.${{iteration:all}}.fork.${{fork}}.metric.${{statistic}}";
+      String phaseIterFork = "phase.${{phase}}.iteration.${{iteration:all}}.fork.${{fork:all}}";
+      String phaseIterForkMetric = "phase.${{phase}}.iteration.${{iteration:all}}.fork.${{fork:all}}.metric.${{statistic}}";
 
       return Arrays.asList(
          new RuleBuilder("info.json")
@@ -45,26 +47,51 @@ public class ReportGenerator implements Command {
             .path("failures.csv$")
             .nest("failures")
             .asText(new CsvFactory()::newParser),
-         new RuleBuilder("session.csv")
-            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)_?(?<fork>[^\\.]+)\\.sessions\\.csv$")
+         new RuleBuilder("phase.session.csv")
+            .path(".*?/(?<phase>[^/\\._]+)\\.sessions\\.csv$")
             .nest(phaseIterFork+".sessions")
             .asText(new CsvFactory()::newParser),
-         new RuleBuilder("phase.histogram.csv")
-            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)_?(?<fork>[^\\.]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.histogram\\.csv$")
+         new RuleBuilder("phase_iterartion_fork.session.csv")
+            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)[_]?(?<fork>[^\\./]+)\\.sessions\\.csv$")
+            .nest(phaseIterFork+".sessions")
+
+            .asText(new CsvFactory()::newParser),
+         new RuleBuilder("phase.statistic.stepId.histogram.csv")
+            .path(".*?/(?<phase>[^/\\._]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.histogram\\.csv$")
             .nest(phaseIterForkMetric+".histogram")
             .asText(new CsvFactory()::newParser),
-         new RuleBuilder("phase.series.csv")
-            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)_?(?<fork>[^\\.]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.series\\.csv$")
+         new RuleBuilder("phase_iteration_fork.statistic.stepId.histogram.csv")
+            .path(".*?/(?<phase>[^/\\._]+)[_\\.](?<iteration>\\d*)[_]?(?<fork>[^\\.]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.histogram\\.csv$")
+            .nest(phaseIterForkMetric+".histogram")
+            .asText(new CsvFactory()::newParser),
+
+         new RuleBuilder("phase_iteration_fork.statistic.stepId.series.csv")
+            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)[_]?(?<fork>[^\\.]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.series\\.csv$")
             .nest(phaseIterForkMetric+".series")
             .asText(new CsvFactory()::newParser),
-         new RuleBuilder("phase.agent.histogram.csv")
-            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)_?(?<fork>[^\\.]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.agent\\.(?<agentId>.{8}-.{4}-.{4}-.{4}-.{12})\\.histogram\\.csv$")
+         new RuleBuilder("phase.statistic.stepId.series.csv")
+            .path(".*?/(?<phase>[^/\\._]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.series\\.csv$")
+            .nest(phaseIterForkMetric+".series")
+            .asText(new CsvFactory()::newParser),
+
+         new RuleBuilder("phase_iteration_fork.statistic.stepId.agent.histogram.csv")
+            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)[_]?(?<fork>[^\\.]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.agent\\.(?<agentId>.{8}-.{4}-.{4}-.{4}-.{12})\\.histogram\\.csv$")
             .nest("agent.${{agentId}}."+phaseIterForkMetric+".histogram")
             .asText(new CsvFactory()::newParser),
-         new RuleBuilder("phase.agent.series.csv")
-            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)_?(?<fork>[^\\.]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.agent\\.(?<agentId>.{8}-.{4}-.{4}-.{4}-.{12})\\.series\\.csv$")
+         new RuleBuilder("phase.statistic.stepId.agent.histogram.csv")
+            .path(".*?/(?<phase>[^/\\._]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.agent\\.(?<agentId>.{8}-.{4}-.{4}-.{4}-.{12})\\.histogram\\.csv$")
+            .nest("agent.${{agentId}}."+phaseIterForkMetric+".histogram")
+            .asText(new CsvFactory()::newParser),
+
+         new RuleBuilder("phase_iteration_fork.statistic.stepId.agent.series.csv")
+            .path(".*?/(?<phase>[^/\\._]+)_(?<iteration>\\d*)[_]?(?<fork>[^\\.]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.agent\\.(?<agentId>.{8}-.{4}-.{4}-.{4}-.{12})\\.series\\.csv$")
             .nest("agent.${{agentId}}."+phaseIterForkMetric+".series")
             .asText(new CsvFactory()::newParser),
+         new RuleBuilder("phase.statistic.stepId.agent.series.csv")
+            .path(".*?/(?<phase>[^/\\._]+)\\.(?<statistic>[^\\.]+)\\.(?<stepId>\\d+)\\.agent\\.(?<agentId>.{8}-.{4}-.{4}-.{4}-.{12})\\.series\\.csv$")
+            .nest("agent.${{agentId}}."+phaseIterForkMetric+".series")
+            .asText(new CsvFactory()::newParser),
+
          new RuleBuilder("agent.total")
             .path(".*?/agent\\.(?<agentId>.{8}-.{4}-.{4}-.{4}-.{12})\\.csv$")
             .nest("agent.${{agentId}}.total")
@@ -83,6 +110,7 @@ public class ReportGenerator implements Command {
 
    @Option(shortName = 'x', required = false, description = "replace token in html template file",defaultValue = DEFAULT_TOKEN)
    private String token;
+
 
    public static void main(String[] args) {
       AeshRuntimeRunner.builder().command(ReportGenerator.class).args(args).execute();
@@ -150,7 +178,7 @@ public class ReportGenerator implements Command {
          indexHtml = indexHtml.replace("[/**DATAKEY**/]",result.toString());
          Files.write(Paths.get(getDestination()),indexHtml.getBytes());
          //Files.write()
-         //Files.write(Paths.get("./result.json"),result.toString().getBytes());
+         Files.write(Paths.get("/tmp/result.json"),result.toString().getBytes());
 
       } catch (FileNotFoundException e) {
          e.printStackTrace();
