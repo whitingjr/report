@@ -52,10 +52,20 @@ export const getAreaBars = (data) => {
         const midIdx = (row.End / 2 + row.Start / 2)
         const mid = areaBars[midIdx] || { _areaKey: midIdx }
 
-        const key = row.Phase.replace(/\//g, "_") + "_" + row.Name;
+        if(typeof areaBars[row.Start] !== "undefined"){
+            console.log("already have start",start,row)
+        }
+        if(typeof areaBars[row.End] !== "undefined"){
+            console.log("already have end",end,row)
+        }
+        if(typeof areaBars[midIdx] !== "undefined"){
+            console.log("already have mid",mid,row)
+        }
+
+
+        const key = row.Phase.replace(/\//g, "_") + (typeof row.Name !== "undefined" ? "_" + row.Name : "" ) + (typeof row.Metric !== "undefined" ? "_" + row.Metric : "");
 
         areaHeaders.forEach((header, headerIndex) => {
-
             start[key + "_" + header] = row[header]
             end[key + "_" + header] = row[header]
             mid[key + "_" + header] = row[header]
@@ -146,12 +156,14 @@ export default ({ height, width, data, domain,
         value: right.name
     } : undefined).filter(v => v !== undefined)
     const rightLines = Object.keys(right).length > 0 ? (
-        right.phases.map((phaseName, phaseIndex) => (
+        right.phases.map((phaseName, phaseIndex) => {
+            const rightKey = phaseName + "_" + right.stat
+            return (
             <Line
                 key={phaseIndex}
                 yAxisId={1}
                 name={right.name}
-                dataKey={phaseName + "_" + right.stat}
+                dataKey={rightKey}
                 stroke={right.color}
                 fill={right.color}
                 connectNulls
@@ -159,7 +171,7 @@ export default ({ height, width, data, domain,
                 isAnimationActive={false}
                 style={{ strokeWidth: 2 }}
             />
-        ))
+        )})
     ) : undefined;
     return (
         <ComposedChart

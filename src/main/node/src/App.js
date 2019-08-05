@@ -1,7 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { Helmet } from "react-helmet";
 
-import { Page, PageHeader, Card, CardHeader, CardBody, CardFooter, PageSidebar, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import { 
+  Page, 
+  PageHeader, 
+  Card, 
+  CardHeader, 
+  CardBody, 
+  CardFooter, 
+  PageSidebar, 
+  PageSection, 
+  PageSectionVariants 
+} from '@patternfly/react-core';
 import {
   Button,
   Checkbox,
@@ -59,14 +69,10 @@ import WideBarChart, { getAreaBars } from './components/WideBarChart';
 import DistributionTimeseriesChart, { getSeries } from './components/DistributionTimeseriesChart';
 import theme from './theme';
 
-//import Chart from './components/Chart';
-import {
-  Brush, Area, Label, LabelList, Legend, Cell, LineChart, BarChart, ComposedChart, Line, Bar, CartesianGrid, XAxis, YAxis, Text, Tooltip, ReferenceArea, ReferenceLine
-} from 'recharts';
-
 const data = window.__DATA__;
 delete window.__DATA__;
 
+console.log("data",data)
 const colorNames = Object.keys(theme.colors.chart);
 
 const fromNano = (ns) => {
@@ -90,7 +96,6 @@ const fromNano = (ns) => {
     phaseMetrics[key] = [...phaseMetrics[key].metrics]
   })
   ///////////////////////////////////////////////////////////////
-console.log("phaseMetrics",phaseMetrics);
 
 const Details = withRouter(({ history }) => {
   const forks = Object.keys(data.phase).reduce((rtrn, phaseName) => {
@@ -120,7 +125,7 @@ const Details = withRouter(({ history }) => {
     })
     return rtrn;
   }, {});
-  const allPhases = data.total[0].data.map(row => row.Phase.replace(/\//g, "_") + "_" + row.Name);
+  const allPhases = data.total[0].data.map(row => row.Phase.replace(/\//g, "_") + (typeof row.Name !== "undefined" ? "_" + row.Name : "" ) + (typeof row.Metric !== "undefined" ? "_" + row.Metric : ""));
   const seriesData = getSeries(data);
   const seriesCharts = Object.keys(forks).reduce((rtrn, forkName) => {
     const fork = forks[forkName]
@@ -156,9 +161,9 @@ const Details = withRouter(({ history }) => {
                       right={{
                         name: "Requests/s",
                         color: '#A30000',
-                        stat: 'Requests',
+                        stat: `${forkName}_${metricName}_Requests`,
                         scaleLabel: 'requests/second',
-                        phases: allPhases.filter(name => name.endsWith(forkName + "_" + metricName))
+                        phases: allPhases.filter(name => name.endsWith( (forkName !== "all" ? forkName : "") + "_" + metricName))
                       }}
                     />
                   )
@@ -196,11 +201,14 @@ const Details = withRouter(({ history }) => {
     </React.Fragment>
   )
 })
-const Welcome = withRouter(({ history }) => {
+const Summary = withRouter(({ history }) => {
   const forks = Object.keys(data.phase).reduce((rtrn, phaseName) => {
+    
     const phase = data.phase[phaseName];
     Object.keys(phase.iteration).forEach(iterationName => {
       const iteration = phase.iteration[iterationName]
+
+      
       Object.keys(iteration.fork).forEach(forkName => {
         const fork = iteration.fork[forkName];
         if (typeof rtrn[forkName] === "undefined") {
@@ -216,7 +224,7 @@ const Welcome = withRouter(({ history }) => {
           }
           const entry = rtrn[forkName][metricName][phaseName];
           //const metric = fork.metric[metricName]
-          const phaseLink = phaseName + "_" + (iterationName !== "all" ? iterationName + "_" : "") + forkName
+          const phaseLink = phaseName + (iterationName !== "all" ? "_" + iterationName : "") + (forkName !== "all" ? "_" + forkName: "")
           const phaseKey = phaseLink + "_" + metricName;
           entry.push({ name: phaseKey, onClick: (e) => history.push(phaseLink) });
         })
@@ -224,11 +232,10 @@ const Welcome = withRouter(({ history }) => {
     })
     return rtrn;
   }, {});
-  const allPhases = data.total[0].data.map(row => row.Phase.replace(/\//g, "_") + "_" + row.Name);
+  const allPhases = data.total[0].data.map(row => row.Phase.replace(/\//g, "_") + (typeof row.Name !== "undefined" ? "_" + row.Name : "" ) + (typeof row.Metric !== "undefined" ? "_" + row.Metric : ""));
   const areaBars = getAreaBars(data.total[0]);
   const wideBars = Object.keys(forks).reduce((rtrn, forkName) => {
     const fork = forks[forkName]
-
     Object.keys(fork).forEach(metricName => {
       const metric = fork[metricName];
       const series = Object.keys(metric).map((metricName, metricIndex) => {
@@ -263,7 +270,7 @@ const Welcome = withRouter(({ history }) => {
                         color: '#A30000',
                         stat: 'Requests_ps',
                         scaleLabel: 'requests/second',
-                        phases: allPhases.filter(name => name.endsWith(forkName + "_" + metricName))
+                        phases: allPhases.filter(name => name.endsWith((forkName!=="all"?forkName+"_":"") + metricName))
                       }}
                     />
                   )
@@ -501,7 +508,7 @@ const Header = ({ logoProps }) => {
           const safeName = phaseName.replace(/\//g, "_")
           return (
             <li role="none" key={phaseIndex} className="pf-c-nav__item">
-            <NavLink className="pf-c-nav__link" to={"/" + safeName}>{safeName}</NavLink>
+            <NavLink className="pf-c-nav__link" to={"/phase/" + safeName}>{safeName}</NavLink>
           </li>
           )
 
@@ -536,9 +543,9 @@ const App = ({ history }) => {
         <title>{`${data.info.id}`}</title>
       </Helmet>
       <Switch>
-        <Route exact path="/" render={Welcome} />
+        <Route exact path="/" render={Summary} />
         <Route exact path="/details" render={Details} />
-        <Route path="/:phaseId" render={PhasePage} />
+        <Route path="/phase/:phaseId" render={PhasePage} />
       </Switch>
     </Page>
   );
