@@ -170,7 +170,7 @@ public class ReportGenerator implements Command {
          BufferedReader reader =
             new BufferedReader(
                new InputStreamReader(
-                  (template==null || template.isEmpty()) ? ReportGenerator.class.getClassLoader().getResourceAsStream("index.html") : new FileInputStream(template)
+                  (template!=null && !template.isEmpty()) ? new FileInputStream(template) : ReportGenerator.class.getClassLoader().getResourceAsStream("index.html")
                )
             )
       ) {
